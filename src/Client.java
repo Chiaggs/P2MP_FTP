@@ -1,9 +1,22 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.util.ArrayList;
 
 public class Client {
+    public static class ServerMapping{
+        InetAddress serverAddress;
+        DatagramSocket socket;
+        ServerMapping(String ServerIP) throws Exception{
+            serverAddress = InetAddress.getByName(ServerIP);
+            socket = new DatagramSocket();
+            socket.setSoTimeout(500);
+        }
+    }
     public static final int SERVER_PORT = 7735;
+    public static ArrayList<ServerMapping> ServerList = new ArrayList<ServerMapping>();
     public static void main(String args[]) throws Exception{
         int argLength = args.length;
         if(argLength > 2) {
@@ -27,6 +40,12 @@ public class Client {
             if(temp.exists()) {
                 BufferedReader br1 = new BufferedReader(new FileReader(temp));
                 System.out.println("File exists, and added to buffered reader");
+            }
+
+            // Initialise server list
+            for(int i = 0; i < servers.length; i ++){
+                ServerMapping sm = new ServerMapping(servers[i]);
+                ServerList.add(sm);
             }
         }
         else{
