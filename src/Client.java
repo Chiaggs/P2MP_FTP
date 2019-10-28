@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ public class Client {
     }
     public static final int SERVER_PORT = 7735;
     public static ArrayList<ServerMapping> ServerList = new ArrayList<ServerMapping>();
+
+    // Main method
     public static void main(String args[]) throws Exception{
         int argLength = args.length;
         if(argLength > 2) {
@@ -47,13 +50,19 @@ public class Client {
                 ServerMapping sm = new ServerMapping(servers[i]);
                 ServerList.add(sm);
             }
+
+            rdt_send(null);
         }
         else{
             System.out.println("Input parameters incorrect, exiting.. ");
         }
     }
 
-    public static void rdt_send(byte[] data){
-
+    public static void rdt_send(byte[] data) throws Exception{
+        System.out.println("Call made to rdt send");
+        String temp_data = "Hello";
+        byte buf[] = temp_data.getBytes();
+        DatagramPacket dpSend = new DatagramPacket(buf, buf.length, ServerList.get(0).serverAddress, SERVER_PORT);
+        ServerList.get(0).socket.send(dpSend);
     }
 }
