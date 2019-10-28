@@ -14,7 +14,7 @@ public class Client {
     public static class ServerMapping{
         InetAddress serverAddress;
         DatagramSocket socket;
-        boolean ack_received;
+        Boolean ack_received;
         ServerMapping(String ServerIP) throws Exception{
             serverAddress = InetAddress.getByName(ServerIP);
             socket = new DatagramSocket();
@@ -89,6 +89,7 @@ public class Client {
                 System.out.println("Servers: " + servers[i]);
             }
 
+            long startTime = System.currentTimeMillis();
             // Fetching the file
             File temp = new File("src/"+filename);
             byte[] fileInBytes = Files.readAllBytes(temp.toPath());
@@ -107,14 +108,21 @@ public class Client {
             long currentIndex = 0;
             int sequenceNumber = 0;
             while (extractSize != 0){
+                System.out.println("\nInside...");
                 byte[] extractData = Arrays.copyOfRange(fileInBytes, (int) currentIndex, (int)(currentIndex + extractSize));
                 System.out.println("Sending from " + currentIndex + " To " + (currentIndex + extractSize));
                 currentIndex += extractSize;
                 remainingTranferBytes = remainingTranferBytes - extractSize;
                 extractSize = Math.min(remainingTranferBytes, MSS);
-                rdt_send(extractData, sequenceNumber);
+                try{
+                    rdt_send(extractData, sequenceNumber);
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                }
                 sequenceNumber += extractData.length;
             }
+            System.out.println("\nTotal time taken: " + (System.currentTimeMillis() - startTime));
         }
         else{
             System.out.println("Input parameters incorrect, exiting.. ");
@@ -131,12 +139,15 @@ public class Client {
         byte[] dataToSendInBytes = dataToSend.array();
         int ack_counter = ServerList.size();
         int expected_ack = sequenceNumber + data.length;
+        System.out.print("\nExpected ack from server: "+expected_ack);
         for(int i = 0; i < ServerList.size(); i ++){
             DatagramPacket dpSend = new DatagramPacket(dataToSendInBytes, dataToSendInBytes.length, ServerList.get(i).serverAddress, SERVER_PORT);
+            ServerList.get(i).ack_received = false;
             ServerList.get(i).socket.send(dpSend);
         }
-        while(ack_counter != 0){
-            for(int i = 0; i < ServerList.size(); i ++){
+        while(ack_counter > 0){
+            //System.out.print(ack_counter);
+            for(int i = 0; i < ServerList.size(); i++){
                 byte[] serverResponse = new byte[8];
                 DatagramPacket resPacket = new DatagramPacket(serverResponse, serverResponse.length);
                 try{
@@ -152,7 +163,7 @@ public class Client {
                 }
                 catch(SocketTimeoutException ste){
                     DatagramPacket dpSend = new DatagramPacket(dataToSendInBytes, dataToSendInBytes.length, ServerList.get(i).serverAddress, SERVER_PORT);
-                    System.out.println("Timeout occured at sequence: " + sequenceNumber);
+                    System.out.println("\nTimeout occured at sequence: " + sequenceNumber);
                     ServerList.get(i).socket.send(dpSend);
                 }
             }

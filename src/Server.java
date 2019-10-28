@@ -42,8 +42,10 @@ public class Server {
                 System.out.print("Server waiting for receiving files");
 
                 int seqNum = processRequest(Arrays.copyOfRange(receivedPacket.getData(), 0, receivedPacket.getLength()));
+                System.out.println("SeqNum is: " + seqNum);
 
                 int size = ((Integer.SIZE)/8) + ((Character.SIZE * 2)/8);
+                System.out.println("Size is: " + size);
                 ByteBuffer bf = ByteBuffer.allocate(size);
                 bf.putInt(seqNum);
                 bf.putChar((char)ACK_1);
@@ -99,6 +101,7 @@ public class Server {
         }
 
         int ackSequenceNum = getSequenceNumber(sequenceNum, mss);
+        System.out.println("\nAck num: " + ackSequenceNum);
 
         if (ackSequenceNum != -1) {
             saveToFile(dataBytes);
@@ -186,6 +189,7 @@ public class Server {
 
     public static void saveToFile(byte[] data) {
         try {
+            System.out.println("Data length is: " + data.length);
             File file = new File(fileName);
             FileOutputStream fileOutStream = new FileOutputStream(file, true);
             fileOutStream.write(data);
