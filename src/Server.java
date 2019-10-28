@@ -25,6 +25,7 @@ public class Server {
     public static void Initialize_Server() throws Exception{
         UDP_Socket = new DatagramSocket(PORT);
         buffer = new byte[BUFFER_SIZE];
+        listSeqNum = new ArrayList<>();
     }
 
     public static void main(String args[]) throws Exception{
