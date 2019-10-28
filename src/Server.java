@@ -86,7 +86,7 @@ public class Server {
         byte[] dataBytes = Arrays.copyOfRange(data, HEADER_SIZE, data.length);
 
         int sequenceNum = ByteBuffer.wrap(sequenceBytes).getInt();
-        int mss = data.length - HEADER_SIZE;;
+        int mss = data.length - HEADER_SIZE;
 
         if(!checkProbValue(sequenceNum)) {
             return -1;
