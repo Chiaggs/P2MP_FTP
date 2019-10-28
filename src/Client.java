@@ -58,12 +58,13 @@ public class Client {
             long currentIndex = 0;
             while (extractSize != 0){
                 byte[] extractData = Arrays.copyOfRange(fileInBytes, (int) currentIndex, (int)(currentIndex + extractSize));
+                System.out.println("Sending from " + currentIndex + " To " + (currentIndex + extractSize));
                 currentIndex += extractSize;
                 remainingTranferBytes = remainingTranferBytes - extractSize;
                 extractSize = Math.min(remainingTranferBytes, MSS);
                 rdt_send(extractData);
             }
-            rdt_send(null);
+            //rdt_send(null);
         }
         else{
             System.out.println("Input parameters incorrect, exiting.. ");
@@ -72,9 +73,9 @@ public class Client {
 
     public static void rdt_send(byte[] data) throws Exception{
         System.out.println("Call made to rdt send");
-        String temp_data = "Hello";
-        byte buf[] = temp_data.getBytes();
-        DatagramPacket dpSend = new DatagramPacket(buf, buf.length, ServerList.get(0).serverAddress, SERVER_PORT);
+        //String temp_data = "Hello";
+        //byte buf[] = data.getBytes();
+        DatagramPacket dpSend = new DatagramPacket(data, data.length, ServerList.get(0).serverAddress, SERVER_PORT);
         ServerList.get(0).socket.send(dpSend);
     }
 }
