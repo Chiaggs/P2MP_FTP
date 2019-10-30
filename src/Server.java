@@ -114,14 +114,12 @@ public class Server {
         int bufferLength = input.length;
         int i = 0;
         long addition = 0;
-        long data;
 
         while (bufferLength > 1) {
-            data = (((input[i] << 8) & 0xFF00) | ((input[i + 1]) & 0xFF));
-            addition += data;
+            addition += (((input[i] << 8) & 0xFF00) | ((input[i + 1]) & 0xFF));
             if ((addition & 0xFFFF0000) > 0) {
                 addition = addition & 0xFFFF;
-                addition += 1;
+                addition++;
             }
             i += 2;
             bufferLength -= 2;
@@ -130,7 +128,7 @@ public class Server {
             addition += (input[i] << 8 & 0xFF00);
             if ((addition & 0xFFFF0000) > 0) {
                 addition = addition & 0xFFFF;
-                addition += 1;
+                addition++;
             }
         }
         return addition;

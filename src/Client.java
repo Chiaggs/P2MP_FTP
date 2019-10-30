@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -39,31 +37,28 @@ public class Client {
             buffer.putChar(dataPacketField);
             return buffer.array();
         }
-        void calculateChecksum(byte[] data_block){
-            int length = data_block.length;
-            int i = 0;
-            long sum = 0;
-            long data;
-            while (length > 1) {
-                data = (((data_block[i] << 8) & 0xFF00) | ((data_block[i + 1]) & 0xFF));
-                sum += data;
-                if ((sum & 0xFFFF0000) > 0) {
-                    sum = sum & 0xFFFF;
-                    sum += 1;
+        void checksumProcessor(byte[] data_block){
+            int size = data_block.length, iterator = 0;
+            long addition = 0;
+            while (size > 1) {
+                addition += (((data_block[iterator] << 8) & 0xFF00) | ((data_block[iterator + 1]) & 0xFF));
+                if ((addition & 0xFFFF0000) > 0) {
+                    addition = addition & 0xFFFF;
+                    addition += 1;
                 }
-                i += 2;
-                length -= 2;
+                iterator += 2;
+                size -= 2;
             }
-            if (length > 0) {
-                sum += (data_block[i] << 8 & 0xFF00);
-                if ((sum & 0xFFFF0000) > 0) {
-                    sum = sum & 0xFFFF;
-                    sum += 1;
+            if (size > 0) {
+                addition += (data_block[iterator] << 8 & 0xFF00);
+                if ((addition & 0xFFFF0000) > 0) {
+                    addition = addition & 0xFFFF;
+                    addition += 1;
                 }
             }
-            sum = ~sum;
-            sum = sum & 0xFFFF;
-            this.checksum = (char) sum;
+            addition = ~addition;
+            addition = addition & 0xFFFF;
+            this.checksum = (char) addition;
         }
     }
 
@@ -132,7 +127,7 @@ public class Client {
     public static void rdt_send(byte[] data, int sequenceNumber) throws Exception{
         System.out.println("Call made to rdt send");
         DataHeader header = new DataHeader(sequenceNumber);
-        header.calculateChecksum(data);
+        header.checksumProcessor(data);
         ByteBuffer dataToSend = ByteBuffer.allocate(8 + data.length);
         dataToSend.put(header.getHeader());
         dataToSend.put(data);
